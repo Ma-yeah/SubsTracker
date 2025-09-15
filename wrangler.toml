@@ -3,7 +3,8 @@ name = "tracker"
 # Worker 项目的入口文件，Wrangler 会打包部署它
 main = "index.js"
 # Worker 运行时的兼容性日期。会根据这个日期决定哪些新旧 API 行为生效
-compatibility_date = "2025-09-16"
+# 注意：这个日期是(UTC)的，在 +8 时区要将当前时间减去 8 小时后得到的日期才对。不能设置一个未来日期，那是没有意义的，Wrangler 编译时将会报错
+compatibility_date = "2025-09-15"
 # 开启 Node.js 风格 API 兼容模式，可以在 Worker 中使用一些 Node.js 内置模块或方法
 compatibility_flags = ["nodejs_compat"]
 
