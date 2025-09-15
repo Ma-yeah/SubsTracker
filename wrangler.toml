@@ -1,24 +1,35 @@
-name = "subscription-manager"
+# Worker 项目的名称
+name = "tracker"
+# Worker 项目的入口文件，Wrangler 会打包部署它
 main = "index.js"
-compatibility_date = "2024-01-01"
+# Worker 运行时的兼容性日期。会根据这个日期决定哪些新旧 API 行为生效
+compatibility_date = "2025-09-16"
+# 开启 Node.js 风格 API 兼容模式，可以在 Worker 中使用一些 Node.js 内置模块或方法
 compatibility_flags = ["nodejs_compat"]
 
+# 定义一个生产环境(production)配置块
+# 可以为不同环境设置不同的 Worker 名称、KV、变量等。
 [env.production]
-name = "subscription-manager"
+# 在生产环境部署时，指定 Worker 的 name(也可与默认相同)，会覆盖默认的 name
+name = "tracker"
 
+# 定义预发布环境(staging)配置块
 [env.staging]
-name = "subscription-manager-staging"
+name = "tracker-staging"
 
-# KV 命名空间配置
+# 绑定 Cloudflare KV 存储
 [[kv_namespaces]]
-binding = "SUBSCRIPTIONS_KV"
-preview_id = "your-preview-kv-namespace-id"
-id = "your-production-kv-namespace-id"
+binding = "TRACKER"
+# 预览环境的 KV 命名空间 ID(staging/本地预览)
+# preview_id = ""
+# 生产环境的 KV 命名空间 ID
+id = "2d731de461ae4c2bbaa907cdce9f9771"
 
-# 定时任务配置 - 每天早上8点检查
+# 定时任务配置 - 每隔 12 小时检测
 [triggers]
-crons = ["0 8 * * *"]
+crons = ["0 */12 * * *"]
 
-# 环境变量（可选，也可以在 Cloudflare Dashboard 中设置）
+# 设置 Worker 的全局环境变量，也就是用哪一套 env(production 或 staging)。可以在 Cloudflare Dashboard 或 wrangler 部署时覆盖
+# 可以在 Worker 脚本里通过 ENVIRONMENT 判断当前环境(production/staging)，实现同一脚本多环境适配
 [vars]
 ENVIRONMENT = "production"

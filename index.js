@@ -3794,7 +3794,7 @@ const api = {
             console.log('[安全] 生成新的JWT密钥');
           }
 
-          await env.SUBSCRIPTIONS_KV.put('config', JSON.stringify(updatedConfig));
+          await env.TRACKER.put('config', JSON.stringify(updatedConfig));
 
           return new Response(
             JSON.stringify({ success: true }),
@@ -4056,12 +4056,12 @@ function generateRandomSecret() {
 
 async function getConfig(env) {
   try {
-    if (!env.SUBSCRIPTIONS_KV) {
+    if (!env.TRACKER) {
       console.error('[配置] KV存储未绑定');
       throw new Error('KV存储未绑定');
     }
 
-    const data = await env.SUBSCRIPTIONS_KV.get('config');
+    const data = await env.TRACKER.get('config');
     console.log('[配置] 从KV读取配置:', data ? '成功' : '空配置');
 
     const config = data ? JSON.parse(data) : {};
@@ -4074,7 +4074,7 @@ async function getConfig(env) {
 
       // 保存新的JWT密钥
       const updatedConfig = { ...config, JWT_SECRET: jwtSecret };
-      await env.SUBSCRIPTIONS_KV.put('config', JSON.stringify(updatedConfig));
+      await env.TRACKER.put('config', JSON.stringify(updatedConfig));
     }
 
     const finalConfig = {
@@ -4182,7 +4182,7 @@ async function verifyJWT(token, secret) {
 
 async function getAllSubscriptions(env) {
   try {
-    const data = await env.SUBSCRIPTIONS_KV.get('subscriptions');
+    const data = await env.TRACKER.get('subscriptions');
     return data ? JSON.parse(data) : [];
   } catch (error) {
     return [];
@@ -4259,7 +4259,7 @@ async function createSubscription(subscription, env) {
 
     subscriptions.push(newSubscription);
 
-    await env.SUBSCRIPTIONS_KV.put('subscriptions', JSON.stringify(subscriptions));
+    await env.TRACKER.put('subscriptions', JSON.stringify(subscriptions));
 
     return { success: true, subscription: newSubscription };
   } catch (error) {
@@ -4337,7 +4337,7 @@ if (useLunar) {
       updatedAt: new Date().toISOString()
     };
 
-    await env.SUBSCRIPTIONS_KV.put('subscriptions', JSON.stringify(subscriptions));
+    await env.TRACKER.put('subscriptions', JSON.stringify(subscriptions));
 
     return { success: true, subscription: subscriptions[index] };
   } catch (error) {
@@ -4354,7 +4354,7 @@ async function deleteSubscription(id, env) {
       return { success: false, message: '订阅不存在' };
     }
 
-    await env.SUBSCRIPTIONS_KV.put('subscriptions', JSON.stringify(filteredSubscriptions));
+    await env.TRACKER.put('subscriptions', JSON.stringify(filteredSubscriptions));
 
     return { success: true };
   } catch (error) {
@@ -4377,7 +4377,7 @@ async function toggleSubscriptionStatus(id, isActive, env) {
       updatedAt: new Date().toISOString()
     };
 
-    await env.SUBSCRIPTIONS_KV.put('subscriptions', JSON.stringify(subscriptions));
+    await env.TRACKER.put('subscriptions', JSON.stringify(subscriptions));
 
     return { success: true, subscription: subscriptions[index] };
   } catch (error) {
@@ -5091,7 +5091,7 @@ for (const subscription of subscriptions) {
         const updated = updatedSubscriptions.find(u => u.id === sub.id);
         return updated || sub;
       });
-      await env.SUBSCRIPTIONS_KV.put('subscriptions', JSON.stringify(mergedSubscriptions));
+      await env.TRACKER.put('subscriptions', JSON.stringify(mergedSubscriptions));
     }
 
     if (expiringSubscriptions.length > 0) {
@@ -5174,7 +5174,7 @@ export default {
         const debugInfo = {
           timestamp: new Date().toISOString(), // 使用UTC时间戳
           pathname: url.pathname,
-          kvBinding: !!env.SUBSCRIPTIONS_KV,
+          kvBinding: !!env.TRACKER,
           configExists: !!config,
           adminUsername: config.ADMIN_USERNAME,
           hasJwtSecret: !!config.JWT_SECRET,
@@ -5211,7 +5211,7 @@ export default {
 
   <div class="info">
     <h3>解决方案</h3>
-    <p>1. 确保KV命名空间已正确绑定为 SUBSCRIPTIONS_KV</p>
+    <p>1. 确保KV命名空间已正确绑定为 TRACKER</p>
     <p>2. 尝试访问 <a href="/">/</a> 进行登录</p>
     <p>3. 如果仍有问题，请检查Cloudflare Workers日志</p>
   </div>
